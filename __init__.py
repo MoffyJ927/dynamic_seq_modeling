@@ -3,26 +3,23 @@ import os
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 """
-Self-Supervised State Transition Risk Model
+Dynamic Sequence Modeling — Self-Learning State Transition Risk
 
-A self-supervised architecture for long time-window state transition risk assessment.
-
-Modules:
-  config  – hyperparameters + data utilities
-  model   – core networks (compression, sub-models, risk matrix, decision scoring)
-  train   – self-supervised training pipeline (pseudo-labels + BCE loss)
-  predict – inference wrapper
+Three weighting schemes in one unified package:
+  1. 'gating'       — context-aware per-timestep weights via gate network (scheme 1)
+  2. 'iterative'    — multi-round training with importance-based weight updates (scheme 2)
+  3. 'uncertainty'  — learnable log-variance per sub-model (scheme 3, Kendall et al.)
 
 Quick start:
-    from self_learning_modeling.config import Config, generate_synthetic_data
-    from self_learning_modeling.train import SelfSupervisedTrainer
-    from self_learning_modeling.predict import Predictor
+    from dynamic_seq_modeling.config import Config, generate_synthetic_data
+    from dynamic_seq_modeling.train import SelfSupervisedTrainer
+    from dynamic_seq_modeling.predict import Predictor
 
     cfg = Config()
-    X, y, tp = generate_synthetic_data(100, cfg)
+    X, _, _ = generate_synthetic_data(100, cfg)
 
-    trainer = SelfSupervisedTrainer(cfg, device='cpu')
-    trainer.train(X, y, tp, epochs=50)
+    trainer = SelfSupervisedTrainer(cfg, scheme='uncertainty', device='cpu')
+    trainer.train(X, epochs=30)
     trainer.save('model.pt')
 
     pred = Predictor.load('model.pt')
